@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>General Ledger</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+  <link href="/dist/semantic.css" rel="stylesheet" type="text/css">
+  <link rel="shortcut icon" href="/assets/images/logo.png"/>
+  <style>
+
+    .form-holder {
+      background: rgba(255,255,255,0.2);
+      margin-top: 10%;
+      border-radius: 3px;
+    }
+
+
+
+    .remember-me {
+      text-align: left;
+    }
+    .ui.checkbox label {
+      color: #ddd;
+    }
+
+  </style>
+</head>
+<body style="height: 100%">
+<script type="text/javascript" src="/dist/jquery.min.js"></script>
+<script type="text/javascript" src="/dist/semantic.js"></script>
+<script src="https://code.jquery.com/jquery-2.1.4.js"></script>
+<script src="https://code.jquery.com/jquery-2.1.4.js"></script>
+<script src="https://cdn.rawgit.com/mdehoog/Semantic-UI/6e6d051d47b598ebab05857545f242caf2b4b48c/dist/semantic.min.js"></script>
+
+<meta charset="utf-8">
+<meta name="_token" content="{{ csrf_token() }}">
+<div class="ui container" style="width: 100% ;height: 100%;padding-left:5%;padding-right: 5% ">
+  <div class="ui secondary pointing menu" style="padding: 5px" >
+    <div class="left menu">
+      <a class="item" href="/">Dashboard</a>
+    </div>
+    <div class="right menu">
+      <a class="item" href="users/logout/action">Logout</a>
+    </div>
+  </div>
+  <div class="ui container">
+    <br>
+    <div  class="ui grid" >
+   </div>
+    <label id="lbltotalTransaksi"></label>
+    <table class="ui celled padded table" id="TabelUser">
+    </table>
+  </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function(){
+        function LoadTabelUser(Data) {
+            $("#TabelUser tr").remove();
+            let table = document.getElementById("TabelUser");
+            let thead, tr, td;
+            table.appendChild(thead = document.createElement("thead"));
+            thead.appendChild(tr = document.createElement("tr"));
+            tr.appendChild(td = document.createElement("td"));
+            td.innerHTML = "No";
+            tr.appendChild(td = document.createElement("td"));
+            td.innerHTML = "Nama";
+            tr.appendChild(td = document.createElement("td"));
+            td.innerHTML = "Nomor Handphone";
+            tr.appendChild(td = document.createElement("td"));
+            td.innerHTML = "Alamat Kios";
+            tr.appendChild(td = document.createElement("td"));
+            td.innerHTML = "Jenis Kelamin";
+            tr.appendChild(td = document.createElement("td"));
+            td.innerHTML = "Aksi";
+            let count=1;
+            let btn={};
+            let editBtn={};
+            let editProfileBtn={};
+            if(Data.length>0){
+                for (let j=0;j<Data.length;j++){
+                    tr = document.createElement("tr");
+                    tr.setAttribute("id", "row" + j);
+
+                    table.appendChild(tr);
+                    tr.appendChild(td = document.createElement("td"));
+                    td.innerHTML =count;
+                    tr.appendChild(td = document.createElement("td"));
+                    td.innerHTML =Data[j].nama;
+                    tr.appendChild(td = document.createElement("td"));
+                    td.innerHTML =Data[j].noHp;
+                    tr.appendChild(td = document.createElement("td"));
+                    td.innerHTML =Data[j].alamatKios;
+                    tr.appendChild(td = document.createElement("td"));
+                    td.innerHTML =Data[j].jenisKelamin;
+
+                    tr.appendChild(td = document.createElement("td"));
+                    btn[j] = document.createElement('input');
+                    btn[j].type = "button";
+                    btn[j].id = "button"+j;
+                    btn[j].name = "button"+j;
+                    btn[j].className = "ui red button";
+                    btn[j].value = "delete";
+                    btn[j].nama=Data[j].NamaSiswa;
+                    btn[j].data=Data[j];
+                    td.appendChild(btn[j]);
+                    $("#button"+j+"").click(function () {
+
+                    });
+                    tr.appendChild(td = document.createElement("td"));
+                    editBtn[j] = document.createElement('input');
+                    editBtn[j].type = "button";
+                    editBtn[j].id = "ebutton"+j;
+                    editBtn[j].name = "ebutton"+j;
+                    editBtn[j].className = "ui blue button";
+                    editBtn[j].value = "Detail Transaksi";
+                    editBtn[j].nama=Data[j].NamaSiswa;
+                    editBtn[j]._id=Data[j]._id;
+                    editBtn[j].data=Data[j] ;
+                    td.appendChild(editBtn[j]);
+                    $("#ebutton"+j+"").click(function () {
+
+                    });
+                    tr.appendChild(td = document.createElement("td"));
+                    editProfileBtn[j] = document.createElement('input');
+                    editProfileBtn[j].type = "button";
+                    editProfileBtn[j].id = "eprofilebutton"+j;
+                    editProfileBtn[j].name = "eprofilebutton"+j;
+                    editProfileBtn[j].className = "ui green button";
+                    editProfileBtn[j].value = "Edit Profile";
+                    editProfileBtn[j].nama=Data[j].NamaSiswa;
+                    editProfileBtn[j]._id=Data[j]._id;
+                    editProfileBtn[j].data=Data[j] ;
+                    td.appendChild(editProfileBtn[j]);
+                    $("#eprofilebutton"+j+"").click(function () {
+
+                    });
+                    count++;
+                }
+            }
+        }
+        function loadDataUser() {
+            $.get('/users/get/list',{},
+                function(data) {
+                    if(data.listuser!==undefined){
+                        LoadTabelUser(data.listuser);
+                    }
+                }
+            );
+        }
+        loadDataUser();
+    });
+</script>
+</body>
+</html>

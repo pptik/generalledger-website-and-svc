@@ -15,8 +15,6 @@ router.post('/login', async(req, res) => {
     if(noHp === undefined || password === undefined)
         res.status(200).send(commonMessage.body_body_empty);
     else {
-        /*let isEmail = validator.validateEmail(entity);
-        let isNumber = validator.validatePhone(entity);*/
         try {
 
             let profile;
@@ -28,10 +26,7 @@ router.post('/login', async(req, res) => {
             if(profile.length <= 0){
                 res.status(200).send(validMsg);
             }else {
-
                 profile = profile[0];
-                //res.status(200).send({success: true, code: "000", message: "berhasil memuat permintaan", profile: profile});
-
                 if(profile.password === md5(password)){
                     res.status(200).send({success: true, code: "000", message: "berhasil memuat permintaan", profile: profile});
                 }else res.status(200).send(validMsg);
@@ -52,32 +47,25 @@ router.post('/login/web', async(req, res) => {
         req.flash('pesan', "Silahkan Isi Username dan Password");
         res.render('login', { title: 'General Ledger' });
     } else {
-
         try {
-
             let profile;
             let validMsg;
-
             profile = await userModel.findPhoneNumber(noHp);
             validMsg = commonMessage.phone_not_valid;
-
             if(profile.length <= 0){
                 req.flash('pesan', "Nomor Handphone Tidak Valid");
                 res.render('login', { title: 'General Ledger' });
             }else {
-
                 profile = profile[0];
-                //res.status(200).send({success: true, code: "000", message: "berhasil memuat permintaan", profile: profile});
-
                 if(profile.password === md5(password)){
                     sess._id=profile._id;
                     sess.nama=profile.nama;
                     sess.noHp=profile.noHp;
                     sess.alamatKios=profile.alamatKios;
+                    sess.role=profile.role;
                     req.flash('pesan', "Berhasil Login");
                     res.redirect('/');
                 }else res.status(200).send(validMsg);
-
             }
         }catch (err){
             console.log(err);
@@ -86,13 +74,10 @@ router.post('/login/web', async(req, res) => {
         }
     }
 });
-
-var corsOptions = {
+let corsOptions = {
     origin: '*',
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
-
-
 router.get('/logout/action', async(req, res) => {
     let sess=req.session;
     delete sess._id;
@@ -100,8 +85,6 @@ router.get('/logout/action', async(req, res) => {
 });
 router.post('/register', async(req, res) => {
     let query = {};
-    let entity = req['body']['entity'];//???
-
     query['noHp'] = req['body']['noHp'];
     query['password'] = req['body']['password'];
     query['nama'] = req['body']['nama'];
@@ -114,27 +97,12 @@ router.post('/register', async(req, res) => {
         res.status(200).send(commonMessage.body_body_empty);
 
     try {
-        /*let findPhone = [], findemail = [], validMsg;
-        if (validator.validatePhone(entity)) {
-            query['phonenumber'] = entity;
-            query['email'] = 'N/A';
-            findPhone = await userModel.findPhoneNumber(query['phonenumber']);
-            validMsg = commonMessage.phone_already;
-        } else if (validator.validateEmail(entity)) {
-            query['phonenumber'] = 'N/A';
-            query['email'] = entity;
-            findemail = await userModel.findEmail(query['email']);
-            validMsg = commonMessage.email_already;
-        }*/
-
         findPhone = await userModel.findPhoneNumber(query['noHp']);
         validMsg = commonMessage.phone_already;
         if(findPhone.length > 0) res.status(200).send(validMsg);//No Hp sudah terdaftar
         else {
-
-                await userModel.insertUser(query);
-                res.status(200).send({success: true, message: "Berhasil membuat akun", code: "000"});
-
+            await userModel.insertUser(query);
+            res.status(200).send({success: true, message: "Berhasil membuat akun", code: "000"});
         }
     }catch (err) {
         console.log(err);
@@ -142,7 +110,16 @@ router.post('/register', async(req, res) => {
     }
 
 });
+router.get('/get/list', async(req, res) => {
+    try {
+        let listUser= await userModel.getListUser();
+        res.status(200).send({success: true, message: "Berhasil membuat akun", code: "000",listuser:listUser});
+    }catch (err) {
+        console.log(err);
+        res.status(200).send(commonMessage.service_not_responding);
+    }
 
+});
 router.post('/register-security', async(req, res) => {
     let query = {};
     let entity = req['body']['entity'];
@@ -181,8 +158,6 @@ router.post('/register-security', async(req, res) => {
         }
     }
 });
-
-
 router.post('/status', async(req, res) => {
     let query = req.body;
     if(query['session_id'] === undefined){
@@ -200,7 +175,4 @@ router.post('/status', async(req, res) => {
         }
     }
 });
-
-
-
 module.exports = router;

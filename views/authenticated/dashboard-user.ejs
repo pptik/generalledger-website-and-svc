@@ -106,7 +106,7 @@
             tr.appendChild(td = document.createElement("td"));
             td.innerHTML = "Harga";
 
-            var count=1;
+            let count=1;
             if(Data.length>0){
                 let hargaTotal=0
                 for (var j=0;j<Data.length;j++){
@@ -114,7 +114,7 @@
                     hargaTotal=hargaSatuan+hargaTotal;
                     tr = document.createElement("tr");
                     tr.setAttribute("id", "row" + j);
-                    if (j%2 == 0)
+                    if (j%2 === 0)
                     {
                         tr.setAttribute("style", "background:white");
                     }
@@ -142,7 +142,7 @@
         function onclick_search() {
             $.post('/transaction/recap',{ idPengguna: "<%= Session._id %>", tanggal: tanggal },
                 function(data) {
-				if(data.transactionRecap!=undefined){
+				if(data.transactionRecap!==undefined){
 				    LoadTabelTransaksi(data.transactionRecap);
 
 				}

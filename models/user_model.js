@@ -8,6 +8,14 @@ const md5 = require('md5');
 const converter = require('../utilities/converter');
 
 /** find registered email **/
+getListUser = () => {
+    return new Promise((resolve, reject)=>{
+        userCollection.find({role :1}).toArray( (err, results) => {
+            if(err)reject(err);
+            else resolve(results);
+        });
+    });
+};
 findEmail = (email) => {
     return new Promise((resolve, reject)=>{
         userCollection.find({Email :email}).toArray( (err, results) => {
@@ -242,13 +250,11 @@ getProfileById = (iduser) => {
 /** insert user**/
 insertUser = (query) => {
     return new Promise((resolve, reject) =>{
-
         var noHp = query.noHp;
         var password = query.password;
         var nama = query.nama;
         var alamatKios = query.alamatKios;
         var jenisKelamin = query.jenisKelamin;
-
         console.log('No Hp diluar else:'+query.noHp)
 
         autoIncrement.getNextSequence(database, 'pengguna', 'ID', (err, autoIndex) => {
@@ -261,6 +267,7 @@ insertUser = (query) => {
                     "password" : md5(password),
                     "alamatKios" : alamatKios,
                     "jenisKelamin" : jenisKelamin,
+                    "role" : 1,
                     "joinDate" : moment().format('YYYY-MM-DD HH:mm:ss')
                 };
                 userCollection.insertOne(userQuery, (err, result) => {
@@ -406,78 +413,16 @@ insertDeviceSecurity = (query) => {
 
 
 
-/** insert user**/
-/*insertUser = (query) => {
-    return new Promise((resolve, reject) =>{
-        let email = query['email'];
-        let phonenumber = query['phonenumber'];
-        let gender = 3;
-        let birthday = 'N/A';
-        let password = query['password'];
-        let name = query['name'];
-        let username = query['username'];
-        autoIncrement.getNextSequence(database, 'tb_user', 'ID', (err, autoIndex) => {
-            if(err) reject(err);
-            else {
-                let userQuery = {
-                    "ID" : autoIndex,
-                    "Name" : name,
-                    "username" : username,
-                    "Email" : email,
-                    "CountryCode" : 62,
-                    "PhoneNumber" : phonenumber,
-                    "Gender" : gender,
-                    "Birthday" : birthday,
-                    "Password" : md5(password),
-                    "Joindate" : moment().format('YYYY-MM-DD HH:mm:ss'),
-                    "Poin" : 100,
-                    "PoinLevel" : 100,
-                    "AvatarID" : gender,
-                    "facebookID" : null,
-                    "Verified" : 0,
-                    "VerifiedNumber" : null,
-                    "Visibility" : 0,
-                    "Reputation" : 0,
-                    "flag" : 1,
-                    "Barcode" : "",
-                    "deposit" : 0,
-                    "ID_role" : 201,
-                    "Plat_motor" : null,
-                    "ID_ktp" : null,
-                    "foto" : null,
-                    "PushID" : "no id",
-                    "Status_online" : null,
-                    "Path_foto" : null,
-                    "Nama_foto" : null,
-                    "Path_ktp" : null,
-                    "Nama_ktp" : null,
-                    "PlatNomor" : null
-                };
-                userCollection.insertOne(userQuery, (err, result) => {
-                    if(err) reject(err);
-                    else resolve(result);
-                });
-            }
-        });
-    });
-};*/
-
 
 
 module.exports = {
     findEmail:findEmail,
     findPhoneNumber:findPhoneNumber,
     findUserName:findUserName,
-    initSession:initSession,
-    getSession:getSession,
     checkSession:checkSession,
-    checkCompleteSession:checkCompleteSession,
-    changeOnlineStatus:changeOnlineStatus,
-    getProfileById:getProfileById,
     insertUser:insertUser,
     insertUserSecurity:insertUserSecurity,
-    findPlatNomor:findPlatNomor,
-    insertUser:insertUser,
     updateUserLocation:updateUserLocation,
-    getSecurityLocation:getSecurityLocation
+    getSecurityLocation:getSecurityLocation,
+    getListUser:getListUser
 };
