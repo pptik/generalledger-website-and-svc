@@ -81,8 +81,7 @@
         $('#TanggalMulai').calendar({
             type: 'date',
             onChange: function (date, text) {
-                let day=date.getDay();
-                day++;
+                let day=date.getDate();
                 let month=date.getMonth();
                 month++;
                 let year=date.getYear();
@@ -143,9 +142,11 @@
         function onclick_search() {
             $.post('/transaction/recap',{ idPengguna: "<%= Session._id %>", tanggal: tanggal },
                 function(data) {
-                    console.log(data)
-                    LoadTabelTransaksi(data.transactionRecap);
+				if(data.transactionRecap!=undefined){
+				    LoadTabelTransaksi(data.transactionRecap);
 
+				}
+                
                 }
             );
         }
