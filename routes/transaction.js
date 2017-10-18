@@ -15,7 +15,7 @@ let storage = multer.diskStorage({
     }
 })
 
-let upload = multer({ storage: storage })
+let upload = multer({storage: storage})
 
 router.post('/file/:i', upload.single('photo'), async (req, res) => {
     if (req.file) {
@@ -53,16 +53,17 @@ router.post('/add', async (req, res) => {
 router.post('/add/multiple', async (req, res) => {
     let query = req.body;
     console.log(query);
-    if (query.arrayItem===undefined) res.status(200).send(commonMessage.body_body_empty);
+    if (query.arrayItem === undefined) res.status(200).send(commonMessage.body_body_empty);
     else {
-        let items=query.arrayItem;
+        let items = JSON.parse(query.arrayItem);
+
         try {
-            if(items.length>0){
-                for(let item of items){
+            if (items.length > 0) {
+                for (let item of items) {
                     await transactionModel.insertTransaction(item);
                 }
                 res.status(200).send({success: true, message: "List Item Berhasil Ditambahkan", code: "000"});
-            }else {
+            } else {
                 res.status(200).send({success: true, message: "List Item Tidak Ditemukan", code: "000"});
             }
         } catch (err) {
@@ -121,12 +122,13 @@ router.get('/images/:filename', async (req, res) => {
 
         res.setHeader('Content-Type', 'image/jpeg');
         console.log(req.params.filename);
-        fs.readFile(UPLOAD_PATH+'/'+req.params.filename, function (err, data) {
+        fs.readFile(UPLOAD_PATH + '/' + req.params.filename, function (err, data) {
             console.log(req.params.filename);
             if (err) {
                 console.log(req.params.filename);
                 throw err;
-            }; // Fail if the file can't be read.
+            }
+            ; // Fail if the file can't be read.
             res.writeHead(200, {'Content-Type': 'image/jpeg'});
             res.end(data); // Send the file data to the browser.
 
