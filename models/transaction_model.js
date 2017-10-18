@@ -2,8 +2,8 @@ const app = require('../app');
 const multer = require('multer');
 const moment = require('moment');
 //ambil tanggal hari ini
-var tanggalHariIni = 'transaksi_' + moment().format('l')
-var database = app.db;
+let tanggalHariIni = 'transaksi_' + moment().format('l')
+let database = app.db;
 let sessionCollection = database.collection('tb_session');
 const autoIncrement = require("mongodb-autoincrement");
 const md5 = require('md5');
@@ -13,17 +13,17 @@ const converter = require('../utilities/converter');
 /** insert transaction **/
 insertTransaction = (query) => {
     return new Promise((resolve, reject) => {
-        var timeserver = moment().format("DD/MM/YYYY HH:mm:ss");
+        let timeserver = moment().format("DD/MM/YYYY HH:mm:ss");
         console.log(timeserver);
-        var idPengguna = query.idPengguna;
-        var tanggal = query.tanggal;
-        var flag = query.flag;
-        var nama = query.nama;
-        var harga = query.harga;
-        var file = query.file;
-        var temptanggalharini = 'transaksi_' + tanggal;
-        var transactionCollection = database.collection(temptanggalharini);
-        console.log('tujuan coll:' + temptanggalharini)
+        let idPengguna = query.idPengguna;
+        let tanggal = query.tanggal;
+        let flag = query.flag;
+        let nama = query.nama;
+        let harga = query.harga;
+        let file = query.file;
+        let temptanggalharini = 'transaksi_' + tanggal;
+        let transactionCollection = database.collection(temptanggalharini);
+        console.log('tujuan coll:' + temptanggalharini);
         autoIncrement.getNextSequence(database, temptanggalharini, 'ID', (err, autoIndex) => {
             if (err) reject(err);
             else {

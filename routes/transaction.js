@@ -1,19 +1,12 @@
-const Loki = require('lokijs');
 const fs = require('fs');
-const http = require('http')
-const pify = require('pify')
 const express = require('express');
 const multer = require('multer');
 const router = express.Router();
-const uuidv1 = require('uuid/v1');
 const transactionModel = require('../models/transaction_model');
 const commonMessage = require('../configs/common_messages.json');
-const validator = require('../utilities/string_validator');
-const md5 = require('md5');
-const cors = require('cors');
 const UPLOAD_PATH = './uploads';
 
-var storage = multer.diskStorage({
+let storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, UPLOAD_PATH)
     },
@@ -22,7 +15,7 @@ var storage = multer.diskStorage({
     }
 })
 
-var upload = multer({ storage: storage })
+let upload = multer({ storage: storage })
 
 router.post('/file/:i', upload.single('photo'), async (req, res) => {
     if (req.file) {
@@ -31,7 +24,7 @@ router.post('/file/:i', upload.single('photo'), async (req, res) => {
     } else {
         res.status(200).send(commonMessage.body_body_empty);
     }
-})
+});
 
 router.post('/add', async (req, res) => {
     let query = {};
@@ -57,7 +50,29 @@ router.post('/add', async (req, res) => {
     }
 
 });
+router.post('/add/multiple', async (req, res) => {
+    let query = req.body;
+    console.log(query);
+    if (query.arrayItem===undefined) res.status(200).send(commonMessage.body_body_empty);
+    else {
+        let items=query.arrayItem;
+        try {
+            if(items.length>0){
+                for(let item of items){
+                    await transactionModel.insertTransaction(item);
+                }
+                res.status(200).send({success: true, message: "List Item Berhasil Ditambahkan", code: "000"});
+            }else {
+                res.status(200).send({success: true, message: "List Item Tidak Ditemukan", code: "000"});
+            }
+        } catch (err) {
+            console.log(err);
+            res.status(200).send(commonMessage.service_not_responding);
+        }
+    }
 
+
+});
 router.post('/recap', async (req, res) => {
 
     let idPengguna = req['body']['idPengguna'];
@@ -121,10 +136,10 @@ router.get('/images/:filename', async (req, res) => {
     }
 });
 
-var corsOptions = {
+let corsOptions = {
     origin: '*',
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-}
+};
 
 
 module.exports = router;
