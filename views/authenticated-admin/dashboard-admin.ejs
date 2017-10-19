@@ -6,15 +6,11 @@
   <link href="/dist/semantic.css" rel="stylesheet" type="text/css">
   <link rel="shortcut icon" href="/assets/images/logo.png"/>
   <style>
-
     .form-holder {
       background: rgba(255,255,255,0.2);
       margin-top: 10%;
       border-radius: 3px;
     }
-
-
-
     .remember-me {
       text-align: left;
     }
@@ -112,12 +108,14 @@
                     editBtn[j].name = "ebutton"+j;
                     editBtn[j].className = "ui blue button";
                     editBtn[j].value = "Detail Transaksi";
-                    editBtn[j].nama=Data[j].NamaSiswa;
+                    editBtn[j].nama=Data[j].nama;
                     editBtn[j]._id=Data[j]._id;
                     editBtn[j].data=Data[j] ;
                     td.appendChild(editBtn[j]);
                     $("#ebutton"+j+"").click(function () {
-
+                        let data=$(this).prop("data");
+                        console.log(data);
+                        post('detail-transaksi',{nama:data.nama,_id:data._id,noHp:data.noHp,alamatKios:data.alamatKios});
                     });
                     tr.appendChild(td = document.createElement("td"));
                     editProfileBtn[j] = document.createElement('input');
@@ -126,7 +124,6 @@
                     editProfileBtn[j].name = "eprofilebutton"+j;
                     editProfileBtn[j].className = "ui green button";
                     editProfileBtn[j].value = "Edit Profile";
-                    editProfileBtn[j].nama=Data[j].NamaSiswa;
                     editProfileBtn[j]._id=Data[j]._id;
                     editProfileBtn[j].data=Data[j] ;
                     td.appendChild(editProfileBtn[j]);
@@ -136,6 +133,27 @@
                     count++;
                 }
             }
+        }
+        function post(path, params, method) {
+            method = method || "post"; // Set method to post by default if not specified.
+
+            // The rest of this code assumes you are not using a library.
+            // It can be made less wordy if you use one.
+            let form = document.createElement("form");
+            form.setAttribute("method", method);
+            form.setAttribute("action", path);
+
+            for(let key in params) {
+                if(params.hasOwnProperty(key)) {
+                    let hiddenField = document.createElement("input");
+                    hiddenField.setAttribute("type", "hidden");
+                    hiddenField.setAttribute("name", key);
+                    hiddenField.setAttribute("value", params[key]);
+                    form.appendChild(hiddenField);
+                }
+            }
+            document.body.appendChild(form);
+            form.submit();
         }
         function loadDataUser() {
             $.get('/users/get/list',{},

@@ -33,4 +33,21 @@ router.get('/login', (req, res) => {
         res.render('login', { title: 'General Ledger' });
     }
 });
+router.post('/detail-transaksi', (req, res) => {
+    let Session=req.session;
+    if(Session._id!==undefined){
+        let query=req.body;
+        switch (Session.role){
+            case 0:
+                console.log(query);
+                res.render('authenticated-admin/detail-transaksi', {Session:Session,detailuser:query, title: 'General Ledger' });
+                break;
+            case 1:
+                res.render('authenticated/dashboard-user', {Session:Session,moment:moment, title: 'General Ledger' });
+                break;
+        }
+    }else{
+        res.render('login', { title: 'General Ledger' });
+    }
+});
 module.exports = router;
