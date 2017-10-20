@@ -124,7 +124,10 @@ router.post('/login/web', async (req, res) => {
                     sess.role = profile.role;
                     req.flash('pesan', "Berhasil Login");
                     res.redirect('/');
-                } else res.status(200).send(validMsg);
+                } else {
+                    req.flash('pesan', validMsg);
+                    res.render('login', {title: 'Absensi'});
+                }
             }
         } catch (err) {
             console.log(err);
