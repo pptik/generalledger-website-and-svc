@@ -9,17 +9,56 @@ const converter = require('../utilities/converter');
 
 /** find registered email **/
 getListUser = () => {
-    return new Promise((resolve, reject)=>{
-        userCollection.find({role :1}).toArray( (err, results) => {
-            if(err)reject(err);
+    return new Promise((resolve, reject) => {
+        userCollection.find({role: 1}).toArray((err, results) => {
+            if (err) reject(err);
             else resolve(results);
         });
     });
 };
+
+updateUserPassword = (body) => {
+    return new Promise((resolve, reject) => {
+        userCollection.updateOne({_id: body.id_user}, {$set: {password: md5(body.new_password)}},
+            (err, result) => {
+                if (err)
+                    reject(err);
+                else {
+                    resolve(result);
+                }
+            });
+    });
+}
+
+updateUserDetail = (body) => {
+    return new Promise((resolve, reject) => {
+        var id = body.id_user;
+        var nama = body.nama;
+        var alamatKios = body.alamat_kios;
+        var jenisKelamin = body.jenis_kelamin;
+        userCollection.updateOne({_id: id},
+            {
+                $set:
+                {
+                    "nama": nama,
+                    "alamatKios": alamatKios,
+                    "jenisKelamin": jenisKelamin,
+                }
+            },
+            (err, result) => {
+                if (err)
+                    reject(err);
+                else {
+                    resolve(result);
+                }
+            });
+    });
+}
+
 findEmail = (email) => {
-    return new Promise((resolve, reject)=>{
-        userCollection.find({Email :email}).toArray( (err, results) => {
-            if(err)reject(err);
+    return new Promise((resolve, reject) => {
+        userCollection.find({Email: email}).toArray((err, results) => {
+            if (err) reject(err);
             else resolve(results);
         });
     });
@@ -28,18 +67,19 @@ findEmail = (email) => {
 /** find registered number **/
 findPhoneNumber = (phoneNumber) => {
     return new Promise((resolve, reject) => {
-        userCollection.find({noHp :phoneNumber}).toArray((err, results) => {
-            if(err) reject(err);
+        userCollection.find({noHp: phoneNumber}).toArray((err, results) => {
+            if (err) reject(err);
             else resolve(results);
         });
     });
 };
 
+
 /** find registered platnomor **/
 findPlatNomor = (platnomor) => {
     return new Promise((resolve, reject) => {
-        userCollection.find({PhoneNumber :platnomor}).toArray((err, results) => {
-            if(err) reject(err);
+        userCollection.find({PhoneNumber: platnomor}).toArray((err, results) => {
+            if (err) reject(err);
             else resolve(results);
         });
     });
@@ -47,9 +87,9 @@ findPlatNomor = (platnomor) => {
 
 /** find registered username **/
 findUserName = (username) => {
-    return new Promise((resolve, reject) =>{
-        userCollection.find({username :username}).toArray( (err, results) => {
-            if(err) reject(err);
+    return new Promise((resolve, reject) => {
+        userCollection.find({username: username}).toArray((err, results) => {
+            if (err) reject(err);
             else resolve(results);
         });
     });
@@ -58,31 +98,35 @@ findUserName = (username) => {
 
 /** initial session **/
 initSession = (userID) => {
-    return new Promise((resolve, reject) =>{
+    return new Promise((resolve, reject) => {
         sessionCollection.find({"UserID": userID, "EndTime": "0000-00-00 00:00:00"})
             .toArray((err, results) => {
-                if(err)reject(err);
+                if (err) reject(err);
                 else {
-                    if(results[0]){
-                        sessionCollection.updateOne({ID: results[0].ID},{ $set: { EndTime : moment().format('YYYY-MM-DD HH:mm:ss')}},
+                    if (results[0]) {
+                        sessionCollection.updateOne({ID: results[0].ID}, {$set: {EndTime: moment().format('YYYY-MM-DD HH:mm:ss')}},
                             (err, result) => {
-                                if(err) reject(err);
+                                if (err) reject(err);
                                 else {
-                                    let _query = {UserID: userID, ID: md5(userID+"-"+moment().format('YYYYMMDDHHmmss')),
+                                    let _query = {
+                                        UserID: userID, ID: md5(userID + "-" + moment().format('YYYYMMDDHHmmss')),
                                         StartTime: moment().format('YYYY-MM-DD HH:mm:ss'),
-                                        LastTime:moment().format('YYYY-MM-DD HH:mm:ss'),
-                                        EndTime: "0000-00-00 00:00:00"};
+                                        LastTime: moment().format('YYYY-MM-DD HH:mm:ss'),
+                                        EndTime: "0000-00-00 00:00:00"
+                                    };
                                     sessionCollection.insertOne(_query, (err, result) => {
                                         if (err) reject(err);
                                         else resolve(result);
                                     });
                                 }
                             });
-                    }else {
-                        let _query = {UserID: userID, ID: md5(userID+"-"+moment().format('YYYYMMDDHHmmss')),
+                    } else {
+                        let _query = {
+                            UserID: userID, ID: md5(userID + "-" + moment().format('YYYYMMDDHHmmss')),
                             StartTime: moment().format('YYYY-MM-DD HH:mm:ss'),
-                            LastTime:moment().format('YYYY-MM-DD HH:mm:ss'),
-                            EndTime: "0000-00-00 00:00:00"};
+                            LastTime: moment().format('YYYY-MM-DD HH:mm:ss'),
+                            EndTime: "0000-00-00 00:00:00"
+                        };
                         sessionCollection.insertOne(_query, (err, result) => {
                             if (err) reject(err);
                             else resolve(result);
@@ -96,10 +140,10 @@ initSession = (userID) => {
 
 /** get session **/
 getSession = (userID) => {
-    return new Promise((resolve, reject) =>{
+    return new Promise((resolve, reject) => {
         sessionCollection.find({"UserID": userID, "EndTime": "0000-00-00 00:00:00"})
             .toArray((err, results) => {
-                if(err) reject(err);
+                if (err) reject(err);
                 else resolve(results[0].ID);
             });
     });
@@ -108,33 +152,34 @@ getSession = (userID) => {
 
 updateUserLocation = (query) => {
     return new Promise((resolve, reject) => {
-        userCollection.updateOne({ID: query['ID']},{ $set:
-            {
-                'Security.location.coordinates' : [query['longitude'], query['latitude']],
-                'Security.LastUpdate' : new Date(query['time']),
-                'Security.tipe' : parseInt(query.tipe)
+        userCollection.updateOne({ID: query['ID']}, {
+            $set: {
+                'Security.location.coordinates': [query['longitude'], query['latitude']],
+                'Security.LastUpdate': new Date(query['time']),
+                'Security.tipe': parseInt(query.tipe)
             }
-        }, function(err, result) {
-            if(err){
+        }, function (err, result) {
+            if (err) {
                 reject(err);
-            }else {
+            } else {
                 resolve(result);
             }
         });
     });
 };
+
 updateDeviceLocation = (query) => {
     return new Promise((resolve, reject) => {
-        userCollection.updateOne({'Security.mac_id': query.mac_id},{ $set:
-            {
-                'Security.location.coordinates' : [query['longitude'], query['latitude']],
-                'Security.LastUpdate' : new Date(query['time']),
-                'Security.tipe' : parseInt(query.tipe)
+        userCollection.updateOne({'Security.mac_id': query.mac_id}, {
+            $set: {
+                'Security.location.coordinates': [query['longitude'], query['latitude']],
+                'Security.LastUpdate': new Date(query['time']),
+                'Security.tipe': parseInt(query.tipe)
             }
-        }, function(err, result) {
-            if(err){
+        }, function (err, result) {
+            if (err) {
                 reject(err);
-            }else {
+            } else {
                 resolve(result);
             }
         });
@@ -144,12 +189,11 @@ updateDeviceLocation = (query) => {
 
 /** check session **/
 checkSession = (sessid) => {
-    return new Promise((resolve, reject) =>{
+    return new Promise((resolve, reject) => {
         sessionCollection.find({ID: sessid, "EndTime": "0000-00-00 00:00:00"})
             .toArray((err, results) => {
                 if (err) reject(err);
-                else
-                if(results[0]) resolve (results[0].UserID);
+                else if (results[0]) resolve(results[0].UserID);
                 else resolve(null);
             });
     });
@@ -159,16 +203,17 @@ checkSession = (sessid) => {
 getSecurityLocation = () => {
     return new Promise((resolve, reject) => {
         userCollection.find(
-            { $and:
-                [
-                    { ID_role: 202 },
-                    { Security: { $exists: true } },
-                    {"Security.location.coordinates": {$ne: [0,0] }}
-                ] }
-        ).toArray((err, results) =>{
-            if(err)reject(err);
+            {
+                $and: [
+                    {ID_role: 202},
+                    {Security: {$exists: true}},
+                    {"Security.location.coordinates": {$ne: [0, 0]}}
+                ]
+            }
+        ).toArray((err, results) => {
+            if (err) reject(err);
             else {
-                for(let i = 0; i < results.length; i++){
+                for (let i = 0; i < results.length; i++) {
                     results[i]['Security']['LastUpdate'] = converter.convertISODateToString(results[i]['Security']['LastUpdate']);
                 }
                 resolve(results);
@@ -178,24 +223,23 @@ getSecurityLocation = () => {
 };
 /** check complete session **/
 checkCompleteSession = (sessid) => {
-    return new Promise((resolve, reject) =>{
+    return new Promise((resolve, reject) => {
         sessionCollection.find({ID: sessid, "EndTime": "0000-00-00 00:00:00"})
             .toArray((err, results) => {
                 if (err) reject(err);
-                else
-                if(results[0]) {
+                else if (results[0]) {
                     userCollection.find({ID: results[0].UserID})
                         .toArray((err, ress) => {
-                            if(err)reject(err);
+                            if (err) reject(err);
                             else resolve(
                                 {
                                     UserID: results[0].UserID,
                                     Name: ress[0].Name,
                                     Email: ress[0].Email,
-                                    username : ress[0].username
+                                    username: ress[0].username
                                 });
                         });
-                }else resolve(null);
+                } else resolve(null);
             });
     });
 };
@@ -206,7 +250,7 @@ changeOnlineStatus = (status, userID) => {
     return new Promise((resolve, reject) => {
         userCollection.updateOne({ID: userID}, {$set: {Status_online: status}}, (err, items) => {
             console.log(items);
-            if(err) reject(err);
+            if (err) reject(err);
             else resolve(items);
         });
     });
@@ -215,13 +259,12 @@ changeOnlineStatus = (status, userID) => {
 
 /** get profile by id **/
 getProfileById = (iduser) => {
-    return new Promise((resolve, reject) =>{
+    return new Promise((resolve, reject) => {
         let _id = parseInt(iduser);
         userCollection.find({ID: _id})
             .toArray((err, results) => {
                 if (err) reject(err);
-                else
-                if(results[0]) {
+                else if (results[0]) {
                     let data = results[0];
                     delete data['Password'];
                     delete data['_id'];
@@ -240,38 +283,37 @@ getProfileById = (iduser) => {
                     delete data['Barcode'];
                     delete data['Status_online'];
                     resolve(data);
-                }else resolve(null);
+                } else resolve(null);
             });
     });
 };
 
 
-
 /** insert user**/
 insertUser = (query) => {
-    return new Promise((resolve, reject) =>{
+    return new Promise((resolve, reject) => {
         var noHp = query.noHp;
         var password = query.password;
         var nama = query.nama;
         var alamatKios = query.alamatKios;
         var jenisKelamin = query.jenisKelamin;
-        console.log('No Hp diluar else:'+query.noHp)
+        console.log('No Hp diluar else:' + query.noHp)
 
         autoIncrement.getNextSequence(database, 'pengguna', 'ID', (err, autoIndex) => {
-            if(err) reject(err);
+            if (err) reject(err);
             else {
-                console.log('No Hp didalam else:'+query.noHp)
+                console.log('No Hp didalam else:' + query.noHp)
                 let userQuery = {
-                    "nama" : nama,
-                    "noHp" : noHp,
-                    "password" : md5(password),
-                    "alamatKios" : alamatKios,
-                    "jenisKelamin" : jenisKelamin,
-                    "role" : 1,
-                    "joinDate" : moment().format('YYYY-MM-DD HH:mm:ss')
+                    "nama": nama,
+                    "noHp": noHp,
+                    "password": md5(password),
+                    "alamatKios": alamatKios,
+                    "jenisKelamin": jenisKelamin,
+                    "role": 1,
+                    "joinDate": moment().format('YYYY-MM-DD HH:mm:ss')
                 };
                 userCollection.insertOne(userQuery, (err, result) => {
-                    if(err) reject(err);
+                    if (err) reject(err);
                     else resolve(result);
                 });
             }
@@ -280,9 +322,8 @@ insertUser = (query) => {
 };
 
 
-
 insertUserSecurity = (query) => {
-    return new Promise((resolve, reject) =>{
+    return new Promise((resolve, reject) => {
         let email = query['email'];
         let phonenumber = query['phonenumber'];
         let gender = 3;
@@ -292,53 +333,53 @@ insertUserSecurity = (query) => {
         let username = query['idSecurity'].toUpperCase();
         let idSecurity = query['idSecurity'].toUpperCase();
         autoIncrement.getNextSequence(database, 'tb_user', 'ID', (err, autoIndex) => {
-            if(err) reject(err);
+            if (err) reject(err);
             else {
                 let userQuery = {
-                    "ID" : autoIndex,
-                    "Name" : name,
-                    "username" : username,
-                    "Email" : email,
-                    "CountryCode" : 62,
-                    "PhoneNumber" : phonenumber,
-                    "Gender" : gender,
-                    "Birthday" : birthday,
-                    "Password" : md5(password),
-                    "Joindate" : moment().format('YYYY-MM-DD HH:mm:ss'),
-                    "Poin" : 100,
-                    "PoinLevel" : 100,
-                    "AvatarID" : gender,
-                    "facebookID" : null,
-                    "Verified" : 0,
-                    "VerifiedNumber" : null,
-                    "Visibility" : 0,
-                    "Reputation" : 0,
-                    "flag" : 1,
-                    "Barcode" : "",
-                    "deposit" : 0,
-                    "ID_role" : 202,
-                    "Plat_motor" : null,
-                    "ID_ktp" : null,
-                    "foto" : null,
-                    "PushID" : "no id",
-                    "Status_online" : null,
-                    "Path_foto" : null,
-                    "Nama_foto" : null,
-                    "Path_ktp" : null,
-                    "Nama_ktp" : null,
-                    "Security" : {
-                        "LastUpdate" : new Date(),
-                        "idSecurity" : idSecurity,
-                        "tipe":0,
-                        "location" : {
+                    "ID": autoIndex,
+                    "Name": name,
+                    "username": username,
+                    "Email": email,
+                    "CountryCode": 62,
+                    "PhoneNumber": phonenumber,
+                    "Gender": gender,
+                    "Birthday": birthday,
+                    "Password": md5(password),
+                    "Joindate": moment().format('YYYY-MM-DD HH:mm:ss'),
+                    "Poin": 100,
+                    "PoinLevel": 100,
+                    "AvatarID": gender,
+                    "facebookID": null,
+                    "Verified": 0,
+                    "VerifiedNumber": null,
+                    "Visibility": 0,
+                    "Reputation": 0,
+                    "flag": 1,
+                    "Barcode": "",
+                    "deposit": 0,
+                    "ID_role": 202,
+                    "Plat_motor": null,
+                    "ID_ktp": null,
+                    "foto": null,
+                    "PushID": "no id",
+                    "Status_online": null,
+                    "Path_foto": null,
+                    "Nama_foto": null,
+                    "Path_ktp": null,
+                    "Nama_ktp": null,
+                    "Security": {
+                        "LastUpdate": new Date(),
+                        "idSecurity": idSecurity,
+                        "tipe": 0,
+                        "location": {
                             "type": "Point",
-                            "coordinates": [0,0]
+                            "coordinates": [0, 0]
                         }
                     }
 
                 };
                 userCollection.insertOne(userQuery, (err, result) => {
-                    if(err) reject(err);
+                    if (err) reject(err);
                     else resolve(result);
                 });
             }
@@ -346,64 +387,64 @@ insertUserSecurity = (query) => {
     });
 };
 insertDeviceSecurity = (query) => {
-    return new Promise((resolve, reject) =>{
+    return new Promise((resolve, reject) => {
         let email = "N/A";
         let phonenumber = "N/A";
         let gender = 3;
         let birthday = 'N/A';
-        let password ="N/A";
+        let password = "N/A";
         let name = "N/A";
         let username = "N/A";
         let idSecurity = "N/A";
         let MacID = query.mac_id;
         autoIncrement.getNextSequence(database, 'tb_user', 'ID', (err, autoIndex) => {
-            if(err) reject(err);
+            if (err) reject(err);
             else {
                 let userQuery = {
-                    "ID" : autoIndex,
-                    "Name" : name,
-                    "username" : username,
-                    "Email" : email,
-                    "CountryCode" : 62,
-                    "PhoneNumber" : phonenumber,
-                    "Gender" : gender,
-                    "Birthday" : birthday,
-                    "Password" : md5(password),
-                    "Joindate" : moment().format('YYYY-MM-DD HH:mm:ss'),
-                    "Poin" : 100,
-                    "PoinLevel" : 100,
-                    "AvatarID" : gender,
-                    "facebookID" : null,
-                    "Verified" : 0,
-                    "VerifiedNumber" : null,
-                    "Visibility" : 0,
-                    "Reputation" : 0,
-                    "flag" : 1,
-                    "Barcode" : "",
-                    "deposit" : 0,
-                    "ID_role" : 202,
-                    "Plat_motor" : null,
-                    "ID_ktp" : null,
-                    "foto" : null,
-                    "PushID" : "no id",
-                    "Status_online" : null,
-                    "Path_foto" : null,
-                    "Nama_foto" : null,
-                    "Path_ktp" : null,
-                    "Nama_ktp" : null,
-                    "Security" : {
-                        "LastUpdate" : new Date(),
-                        "mac_id" : MacID,
-                        "tipe":0,
-                        "location" : {
+                    "ID": autoIndex,
+                    "Name": name,
+                    "username": username,
+                    "Email": email,
+                    "CountryCode": 62,
+                    "PhoneNumber": phonenumber,
+                    "Gender": gender,
+                    "Birthday": birthday,
+                    "Password": md5(password),
+                    "Joindate": moment().format('YYYY-MM-DD HH:mm:ss'),
+                    "Poin": 100,
+                    "PoinLevel": 100,
+                    "AvatarID": gender,
+                    "facebookID": null,
+                    "Verified": 0,
+                    "VerifiedNumber": null,
+                    "Visibility": 0,
+                    "Reputation": 0,
+                    "flag": 1,
+                    "Barcode": "",
+                    "deposit": 0,
+                    "ID_role": 202,
+                    "Plat_motor": null,
+                    "ID_ktp": null,
+                    "foto": null,
+                    "PushID": "no id",
+                    "Status_online": null,
+                    "Path_foto": null,
+                    "Nama_foto": null,
+                    "Path_ktp": null,
+                    "Nama_ktp": null,
+                    "Security": {
+                        "LastUpdate": new Date(),
+                        "mac_id": MacID,
+                        "tipe": 0,
+                        "location": {
                             "type": "Point",
-                            "coordinates": [0,0]
+                            "coordinates": [0, 0]
                         }
                     }
 
                 };
                 userCollection.insertOne(userQuery, (err, result) => {
-                    if(err) reject(err);
+                    if (err) reject(err);
                     else resolve(result);
                 });
             }
@@ -412,17 +453,16 @@ insertDeviceSecurity = (query) => {
 };
 
 
-
-
-
 module.exports = {
-    findEmail:findEmail,
-    findPhoneNumber:findPhoneNumber,
-    findUserName:findUserName,
-    checkSession:checkSession,
-    insertUser:insertUser,
-    insertUserSecurity:insertUserSecurity,
-    updateUserLocation:updateUserLocation,
-    getSecurityLocation:getSecurityLocation,
-    getListUser:getListUser
+    findEmail: findEmail,
+    findPhoneNumber: findPhoneNumber,
+    findUserName: findUserName,
+    checkSession: checkSession,
+    insertUser: insertUser,
+    insertUserSecurity: insertUserSecurity,
+    updateUserLocation: updateUserLocation,
+    updateUserPassword: updateUserPassword,
+    updateUserDetail: updateUserDetail,
+    getSecurityLocation: getSecurityLocation,
+    getListUser: getListUser
 };

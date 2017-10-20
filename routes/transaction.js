@@ -50,6 +50,7 @@ router.post('/add', async (req, res) => {
     }
 
 });
+
 router.post('/add/multiple', async (req, res) => {
     let query = req.body;
     console.log(query);
