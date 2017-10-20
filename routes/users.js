@@ -125,7 +125,7 @@ router.post('/login/web', async (req, res) => {
                     req.flash('pesan', "Berhasil Login");
                     res.redirect('/');
                 } else {
-                    req.flash('pesan', validMsg);
+                    req.flash('pesan', "Nomor Handphone atau Password tidak cocok");
                     res.render('login', {title: 'Absensi'});
                 }
             }
