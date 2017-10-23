@@ -1,5 +1,6 @@
 const app = require('../app');
 const moment = require('moment');
+var ObjectID = require('mongodb').ObjectID;
 let database = app.db;
 let userCollection = database.collection('pengguna');
 let sessionCollection = database.collection('tb_session');
@@ -30,25 +31,23 @@ updateUserPassword = (body) => {
     });
 }
 
+
 updateUserDetail = (body) => {
     return new Promise((resolve, reject) => {
-        var id = body.id_user;
-        var nama = body.nama;
-        var alamatKios = body.alamat_kios;
-        var jenisKelamin = body.jenis_kelamin;
-        userCollection.updateOne({_id: id},
+        userCollection.updateOne({'_id': ObjectID(body.id_user)},
             {
-                $set:
-                {
-                    "nama": nama,
-                    "alamatKios": alamatKios,
-                    "jenisKelamin": jenisKelamin,
+                $set: {
+                    'nama' : body.nama,
+                    'alamatKios' : body.alamat_kios,
+                    'jenisKelamin' : body.jenis_kelamin,
                 }
             },
             (err, result) => {
-                if (err)
+                if (err) {
+                    console.log(err);
                     reject(err);
-                else {
+                } else {
+                    console.log(result);
                     resolve(result);
                 }
             });

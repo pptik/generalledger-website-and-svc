@@ -137,7 +137,8 @@
                     btn[j].data = Data[j];
                     td.appendChild(btn[j]);
                     $("#button" + j + "").click(function () {
-
+                        let data = $(this).prop("data");
+                        deteleForm()
                     });
                     tr.appendChild(td = document.createElement("td"));
                     editBtn[j] = document.createElement('input');
@@ -186,6 +187,11 @@
             $(".editDataUser #alamat_kios").val(data.alamatKios);
             $("#jenis_kelamin").val(data.jenisKelamin).change();
             $('#editDataUserModal').modal('show');
+        }
+
+        function deteleForm(data){
+            console.log(data);
+
         }
 
         function post(path, params, method) {

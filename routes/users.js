@@ -7,10 +7,10 @@ const md5 = require('md5');
 const cors = require('cors');
 
 router.post('/updatedetail', async (req, res) => {
-    let id = body.id_user;
-    let nama = body.nama;
-    let alamatKios = body.alamat_kios;
-    let jenisKelamin = body.jenis_kelamin;
+    let id = req.body.id_user;
+    let nama = req.body.nama;
+    let alamatKios = req.body.alamat_kios;
+    let jenisKelamin = req.body.jenis_kelamin;
 
     if (id === undefined || nama === undefined || alamatKios === undefined || jenisKelamin === undefined) {
         res.status(200).send(commonMessage.body_body_empty);
@@ -18,14 +18,14 @@ router.post('/updatedetail', async (req, res) => {
 
     try {
         await userModel.updateUserDetail(req.body);
-        res.status(200).send({
-            "success": true,
-            "message": "Informasi detail user telah diubah!",
-            "code": "000"
-        })
+        req.flash('pesan', "Berhasil Mengubah Data");
+        res.redirect('/');
+
+        console.log(req.body);
     } catch (err) {
+        req.flash('pesan', "Gagal Mengubah Data");
+        res.redirect('/');
         console.log(err);
-        res.status(200).send(commonMessage.service_not_responding);
     }
 });
 
@@ -136,6 +136,7 @@ router.post('/login/web', async (req, res) => {
         }
     }
 });
+
 let corsOptions = {
     origin: '*',
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
