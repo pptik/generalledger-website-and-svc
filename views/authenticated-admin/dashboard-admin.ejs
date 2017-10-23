@@ -1,24 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>General Ledger</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
-  <link href="/dist/semantic.css" rel="stylesheet" type="text/css">
-  <link rel="shortcut icon" href="/assets/images/logo.png"/>
-  <style>
-    .form-holder {
-      background: rgba(255,255,255,0.2);
-      margin-top: 10%;
-      border-radius: 3px;
-    }
-    .remember-me {
-      text-align: left;
-    }
-    .ui.checkbox label {
-      color: #ddd;
-    }
+    <title>General Ledger</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css"/>
+    <link href="/dist/semantic.css" rel="stylesheet" type="text/css">
+    <link rel="shortcut icon" href="/assets/images/logo.png"/>
+    <style>
+        .form-holder {
+            background: rgba(255, 255, 255, 0.2);
+            margin-top: 10%;
+            border-radius: 3px;
+        }
 
-  </style>
+        .remember-me {
+            text-align: left;
+        }
+
+        .ui.checkbox label {
+            color: #ddd;
+        }
+
+    </style>
 </head>
 <body style="height: 100%">
 <script type="text/javascript" src="/dist/jquery.min.js"></script>
@@ -29,26 +31,62 @@
 
 <meta charset="utf-8">
 <meta name="_token" content="{{ csrf_token() }}">
+
+<div class="ui modal small" id="editDataUserModal" style="width: 50% ">
+    <i class="close icon"></i>
+    <div class="header">
+        Edit Data Siswa
+    </div>
+    <div class="editDataUser" style="margin: 7px">
+        <form class="ui form" method="post" action="/users/updatedetail">
+            <input type="hidden" name="id_user" id="id_user"/>
+            <div class="ui grid">
+                <div class="four wide column">
+                    <div class="field">
+                        <label>Nama</label>
+                        <input type="text" name="nama" id="nama">
+                    </div>
+                    <div class="field">
+                        <label>Alamat Kios</label>
+                        <input type="text" name="alamat_kios" id="alamat_kios">
+                    </div>
+                    <div class="field">
+                        <label>Jenis Kelamin</label>
+                        <select name="jenis_kelamin" id="jenis_kelamin">
+                            <option value="L">Laki-laki</option>
+                            <option value="P">Perempuan</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="field">
+                <br>
+                <input type="submit" value="Submit" class="ui button blue">
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="ui container" style="width: 100% ;height: 100%;padding-left:5%;padding-right: 5% ">
-  <div class="ui secondary pointing menu" style="padding: 5px" >
-    <div class="left menu">
-      <a class="item" href="/">Dashboard</a>
+    <div class="ui secondary pointing menu" style="padding: 5px">
+        <div class="left menu">
+            <a class="item" href="/">Dashboard</a>
+        </div>
+        <div class="right menu">
+            <a class="item" href="users/logout/action">Logout</a>
+        </div>
     </div>
-    <div class="right menu">
-      <a class="item" href="users/logout/action">Logout</a>
+    <div class="ui container">
+        <br>
+        <div class="ui grid">
+        </div>
+        <label id="lbltotalTransaksi"></label>
+        <table class="ui celled padded table" id="TabelUser">
+        </table>
     </div>
-  </div>
-  <div class="ui container">
-    <br>
-    <div  class="ui grid" >
-   </div>
-    <label id="lbltotalTransaksi"></label>
-    <table class="ui celled padded table" id="TabelUser">
-    </table>
-  </div>
 </div>
 <script type="text/javascript">
-    $(document).ready(function(){
+    $(document).ready(function () {
         function LoadTabelUser(Data) {
             $("#TabelUser tr").remove();
             let table = document.getElementById("TabelUser");
@@ -67,73 +105,89 @@
             td.innerHTML = "Jenis Kelamin";
             tr.appendChild(td = document.createElement("td"));
             td.innerHTML = "Aksi";
-            let count=1;
-            let btn={};
-            let editBtn={};
-            let editProfileBtn={};
-            if(Data.length>0){
-                for (let j=0;j<Data.length;j++){
+            let count = 1;
+            let btn = {};
+            let editBtn = {};
+            let editProfileBtn = {};
+            if (Data.length > 0) {
+                for (let j = 0; j < Data.length; j++) {
                     tr = document.createElement("tr");
                     tr.setAttribute("id", "row" + j);
 
                     table.appendChild(tr);
                     tr.appendChild(td = document.createElement("td"));
-                    td.innerHTML =count;
+                    td.innerHTML = count;
                     tr.appendChild(td = document.createElement("td"));
-                    td.innerHTML =Data[j].nama;
+                    td.innerHTML = Data[j].nama;
                     tr.appendChild(td = document.createElement("td"));
-                    td.innerHTML =Data[j].noHp;
+                    td.innerHTML = Data[j].noHp;
                     tr.appendChild(td = document.createElement("td"));
-                    td.innerHTML =Data[j].alamatKios;
+                    td.innerHTML = Data[j].alamatKios;
                     tr.appendChild(td = document.createElement("td"));
-                    td.innerHTML =Data[j].jenisKelamin;
+                    td.innerHTML = Data[j].jenisKelamin;
 
                     tr.appendChild(td = document.createElement("td"));
                     btn[j] = document.createElement('input');
                     btn[j].type = "button";
-                    btn[j].id = "button"+j;
-                    btn[j].name = "button"+j;
+                    btn[j].id = "button" + j;
+                    btn[j].name = "button" + j;
                     btn[j].className = "ui red button";
                     btn[j].value = "delete";
-                    btn[j].nama=Data[j].NamaSiswa;
-                    btn[j].data=Data[j];
+                    btn[j].nama = Data[j].NamaSiswa;
+                    btn[j].data = Data[j];
                     td.appendChild(btn[j]);
-                    $("#button"+j+"").click(function () {
+                    $("#button" + j + "").click(function () {
 
                     });
                     tr.appendChild(td = document.createElement("td"));
                     editBtn[j] = document.createElement('input');
                     editBtn[j].type = "button";
-                    editBtn[j].id = "ebutton"+j;
-                    editBtn[j].name = "ebutton"+j;
+                    editBtn[j].id = "ebutton" + j;
+                    editBtn[j].name = "ebutton" + j;
                     editBtn[j].className = "ui blue button";
                     editBtn[j].value = "Detail Transaksi";
-                    editBtn[j].nama=Data[j].nama;
-                    editBtn[j]._id=Data[j]._id;
-                    editBtn[j].data=Data[j] ;
+                    editBtn[j].nama = Data[j].nama;
+                    editBtn[j]._id = Data[j]._id;
+                    editBtn[j].data = Data[j];
                     td.appendChild(editBtn[j]);
-                    $("#ebutton"+j+"").click(function () {
-                        let data=$(this).prop("data");
+                    $("#ebutton" + j + "").click(function () {
+                        let data = $(this).prop("data");
                         console.log(data);
-                        post('detail-transaksi',{nama:data.nama,_id:data._id,noHp:data.noHp,alamatKios:data.alamatKios});
+                        post('detail-transaksi', {
+                            nama: data.nama,
+                            _id: data._id,
+                            noHp: data.noHp,
+                            alamatKios: data.alamatKios
+                        });
                     });
                     tr.appendChild(td = document.createElement("td"));
                     editProfileBtn[j] = document.createElement('input');
                     editProfileBtn[j].type = "button";
-                    editProfileBtn[j].id = "eprofilebutton"+j;
-                    editProfileBtn[j].name = "eprofilebutton"+j;
+                    editProfileBtn[j].id = "eprofilebutton" + j;
+                    editProfileBtn[j].name = "eprofilebutton" + j;
                     editProfileBtn[j].className = "ui green button";
                     editProfileBtn[j].value = "Edit Profile";
-                    editProfileBtn[j]._id=Data[j]._id;
-                    editProfileBtn[j].data=Data[j] ;
+                    editProfileBtn[j]._id = Data[j]._id;
+                    editProfileBtn[j].data = Data[j];
                     td.appendChild(editProfileBtn[j]);
-                    $("#eprofilebutton"+j+"").click(function () {
-
+                    $("#eprofilebutton" + j + "").click(function () {
+                        let data = $(this).prop("data");
+                        editFormOpen(data);
                     });
                     count++;
                 }
             }
         }
+
+        function editFormOpen(data) {
+            console.log(data);
+            $(".editDataUser #id_user").val(data._id);
+            $(".editDataUser #nama").val(data.nama);
+            $(".editDataUser #alamat_kios").val(data.alamatKios);
+            $("#jenis_kelamin").val(data.jenisKelamin).change();
+            $('#editDataUserModal').modal('show');
+        }
+
         function post(path, params, method) {
             method = method || "post"; // Set method to post by default if not specified.
 
@@ -143,8 +197,8 @@
             form.setAttribute("method", method);
             form.setAttribute("action", path);
 
-            for(let key in params) {
-                if(params.hasOwnProperty(key)) {
+            for (let key in params) {
+                if (params.hasOwnProperty(key)) {
                     let hiddenField = document.createElement("input");
                     hiddenField.setAttribute("type", "hidden");
                     hiddenField.setAttribute("name", key);
@@ -155,15 +209,17 @@
             document.body.appendChild(form);
             form.submit();
         }
+
         function loadDataUser() {
-            $.get('/users/get/list',{},
-                function(data) {
-                    if(data.listuser!==undefined){
+            $.get('/users/get/list', {},
+                function (data) {
+                    if (data.listuser !== undefined) {
                         LoadTabelUser(data.listuser);
                     }
                 }
             );
         }
+
         loadDataUser();
     });
 </script>

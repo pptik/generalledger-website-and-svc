@@ -6,8 +6,10 @@ const broadcaster = require('./broadcaster');
 /** connect to rabbit**/
 connect = async() => {
     try {
+        /*
         let connection = await rmq.connect(rmq_config.broker_uri);
         await consume(connection);
+        */
     }catch (er){
         console.log(err);
     }
