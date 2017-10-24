@@ -32,10 +32,35 @@
 <meta charset="utf-8">
 <meta name="_token" content="{{ csrf_token() }}">
 
+<div class="ui modal small" id="deleteDataForm" style="width: 30% ">
+    <i class="close icon"></i>
+    <div class="header">
+        Delete Data
+    </div>
+    <div class="deleteDataFormBody" style="margin: 7px " >
+        <form class="ui form" method="post" action="/users/deleteauth">
+            <input type="hidden" name="id_user" id="id_user"/>
+            <div class="ui grid">
+                <div class="ten wide column">
+                    <div class="field">
+                        <label >Masukkan Password Admin</label>
+                        <input type="Password" name="password_admin" id="password_admin">
+                    </div>
+                </div>
+
+            </div>
+            <div class="field">
+                <br>
+                <input type="submit" value="Submit" class="ui button blue">
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="ui modal small" id="editDataUserModal" style="width: 50% ">
     <i class="close icon"></i>
     <div class="header">
-        Edit Data Siswa
+        Edit Data User
     </div>
     <div class="editDataUser" style="margin: 7px">
         <form class="ui form" method="post" action="/users/updatedetail">
@@ -138,7 +163,7 @@
                     td.appendChild(btn[j]);
                     $("#button" + j + "").click(function () {
                         let data = $(this).prop("data");
-                        deteleForm()
+                        deteleFormOpen(data);
                     });
                     tr.appendChild(td = document.createElement("td"));
                     editBtn[j] = document.createElement('input');
@@ -189,9 +214,10 @@
             $('#editDataUserModal').modal('show');
         }
 
-        function deteleForm(data){
+        function deteleFormOpen(data){
             console.log(data);
-
+            $(".deleteDataFormBody #id_user").val(data._id);
+            $('#deleteDataForm').modal('show');
         }
 
         function post(path, params, method) {

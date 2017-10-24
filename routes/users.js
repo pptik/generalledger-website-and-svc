@@ -6,6 +6,42 @@ const validator = require('../utilities/string_validator');
 const md5 = require('md5');
 const cors = require('cors');
 
+router.post('/deleteauth', async (req, res) => {
+    let query = req.body;
+    if (query.password_admin === undefined || query.id_user === undefined) {
+        req.flash('pesan', "Silahkan Lengkapi Data");
+        res.redirect('/');
+    }
+    else {
+        try {
+            let checkadmin = await userModel.checkIfAdmin(req.session._id);
+            if (checkadmin) {
+                let passwordFromDb = checkadmin.password;
+                if (passwordFromDb !== undefined) {
+                    if (md5(query.password_admin) == passwordFromDb) {
+                        await userModel.deleteUserFromDocument(query.id_user);
+                        req.flash('pesan', "Berhasil Menghapus data");
+                        res.redirect('/');
+                    } else {
+                        req.flash('pesan', "Password Salah");
+                        res.redirect('/');
+                    }
+                } else {
+                    req.flash('pesan', "Akun Belum Aktif");
+                    res.redirect('/');
+                }
+            } else {
+                req.flash('pesan', "Gagal Meghapus Data!");
+                res.redirect('/');
+            }
+
+        } catch (err) {
+            req.flash('pesan', "Gagal Meghapus Data");
+            res.redirect('/');
+        }
+    }
+});
+
 router.post('/updatedetail', async (req, res) => {
     let id = req.body.id_user;
     let nama = req.body.nama;

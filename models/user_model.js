@@ -31,7 +31,6 @@ updateUserPassword = (body) => {
     });
 }
 
-
 updateUserDetail = (body) => {
     return new Promise((resolve, reject) => {
         userCollection.updateOne({'_id': ObjectID(body.id_user)},
@@ -53,6 +52,15 @@ updateUserDetail = (body) => {
             });
     });
 }
+
+deleteUserFromDocument=(UseriD)=>{
+    return new Promise((resolve,reject)=>{
+        userCollection.removeOne({'_id':ObjectID(UseriD)},function (err,result) {
+            if(err)reject(err);
+            else resolve(result);
+        });
+    }) ;
+};
 
 findEmail = (email) => {
     return new Promise((resolve, reject) => {
@@ -451,17 +459,40 @@ insertDeviceSecurity = (query) => {
     });
 };
 
+checkIfAdmin=(IDUser)=>{
+    return new Promise((resolve,reject)=>{
+        console.log(IDUser);
+        userCollection.findOne({
+            '_id':ObjectID(IDUser)
+        },function (err,result) {
+            if(err)reject(err);
+            else {
+                if (result){
+                    if(result.role===0){
+                        resolve(result);
+                    }else {
+                        resolve(false);
+                    }
+                }else {
+                    resolve(false);
+                }
+            }
+        });
+    });
+};
 
 module.exports = {
     findEmail: findEmail,
     findPhoneNumber: findPhoneNumber,
     findUserName: findUserName,
     checkSession: checkSession,
+    checkIfAdmin:checkIfAdmin,
     insertUser: insertUser,
     insertUserSecurity: insertUserSecurity,
     updateUserLocation: updateUserLocation,
     updateUserPassword: updateUserPassword,
     updateUserDetail: updateUserDetail,
+    deleteUserFromDocument: deleteUserFromDocument,
     getSecurityLocation: getSecurityLocation,
     getListUser: getListUser
 };
